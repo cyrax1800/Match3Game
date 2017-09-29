@@ -1,0 +1,30 @@
+version: 2
+importPivots: 1
+tpsheetFileNames:
+- Assets/codeandweb.com/Example/SpriteSheet/sprites.tpsheet
+- Assets/Resources/AllScene/CustomerAtlas.tpsheet
+- Assets/Resources/AllScene/icons.tpsheet
+- Assets/Resources/AllScene/window.tpsheet
+- Assets/Resources/SolitaireScene/SolitaireScreen.tpsheet
+- Assets/Resources/Textures/GameScreen.tpsheet
+- Assets/Textures/HomeScene/DecorScreen.tpsheet
+- Assets/Textures/OpeningScene/OpeningScreen.tpsheet
+textureFileNames:
+- Assets/codeandweb.com/Example/SpriteSheet/sprites.png
+- Assets/Resources/AllScene/CustomerAtlas.png
+- Assets/Resources/AllScene/icons.png
+- Assets/Resources/AllScene/window.png
+- Assets/Resources/SolitaireScene/SolitaireScreen.png
+- Assets/Resources/Textures/GameScreen.png
+- Assets/Textures/HomeScene/DecorScreen.png
+- Assets/Textures/OpeningScene/OpeningScreen.png
+normalmapFileNames:
+- Assets/codeandweb.com/Example/SpriteSheet/sprites_n.png
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+enableDebugOutput: 0
