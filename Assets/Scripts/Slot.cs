@@ -7,10 +7,11 @@ public class Slot : MonoBehaviour
     public FieldController fieldController;
     public Item item;
     public int row, col;
+    public CombineHelper combineHelper;
 
     void Awake()
     {
-
+        combineHelper = new CombineHelper(this);
     }
 
     // Use this for initialization
@@ -25,6 +26,7 @@ public class Slot : MonoBehaviour
         itemGO.transform.SetParent(transform.parent);
         item = itemGO.GetComponent<Item>();
         item.slot = this;
+        item.fieldController = fieldController;
         return item;
     }
 
@@ -61,6 +63,14 @@ public class Slot : MonoBehaviour
         slots[2] = GetNeighBour(FieldController.Direction.RIGHT);
         slots[3] = GetNeighBour(FieldController.Direction.LEFT);
         return slots;
+    }
+
+    public CombineHelper TryMatch()
+    {
+        combineHelper.reset();
+        combineHelper.Calculate();
+
+        return combineHelper;
     }
 
     // Update is called once per frame

@@ -107,9 +107,20 @@ public class FieldController : MonoBehaviour
         }
     }
 
-    public Slot GetSlot(int row, int col)
+    public Slot GetSlot(int row, int col, bool safe = false)
     {
-        return slotArr[row * maxRow + col];
+        if (!safe)
+        {
+            if (row >= maxRow || col >= maxCol || row < 0 || col < 0)
+                return null;
+            return slotArr[row * maxRow + col];
+        }
+        else
+        {
+            row = Mathf.Clamp(row, 0, maxRow - 1);
+            col = Mathf.Clamp(col, 0, maxCol - 1);
+            return slotArr[row * maxCol + col];
+        }
     }
 
     public Sprite GetSpriteOfColor(Utilities.Color color)
@@ -151,6 +162,7 @@ public class FieldController : MonoBehaviour
         gesture.GetTargetHitResult(out touchHit);
         Slot tmpSlotSelected = touchHit.RaycastHit2D.collider.gameObject.GetComponent<Slot>();
         Debug.Log("Began");
+        if (tmpSlotSelected.item.isSwapping) return;
         if (currentSlotSelected == null)
         {
             Debug.Log("Click");
@@ -171,12 +183,13 @@ public class FieldController : MonoBehaviour
                 // Swap
                 // TODO: Handle Touch End
                 Debug.Log("Swap");
-                currentSlotSelected = null;
+                currentSlotSelected.item.Swap(tmpSlotSelected);
             }
             else
             {
                 Debug.Log("Not Neighbour, Then return");
             }
+            currentSlotSelected = null;
         }
     }
 
@@ -200,6 +213,7 @@ public class FieldController : MonoBehaviour
             //Swap
             if (targetSlot == null) return;
             Debug.Log("Swap");
+            currentSlotSelected.item.Swap(targetSlot);
             currentSlotSelected = null;
         }
 
