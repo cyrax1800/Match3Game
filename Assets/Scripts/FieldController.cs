@@ -161,11 +161,12 @@ public class FieldController : MonoBehaviour
         TouchHit touchHit;
         gesture.GetTargetHitResult(out touchHit);
         Slot tmpSlotSelected = touchHit.RaycastHit2D.collider.gameObject.GetComponent<Slot>();
-        Debug.Log("Began");
-        if (tmpSlotSelected.item.isSwapping) return;
+        // Debug.Log("Began");
+        if (currentSlotSelected == null && tmpSlotSelected.item == null) return;
+        if (tmpSlotSelected.item != null && tmpSlotSelected.item.isSwapping) return;
         if (currentSlotSelected == null)
         {
-            Debug.Log("Click");
+            // Debug.Log("Click");
             // TODO: untuk obstacle yang lain, handle disini juga
             if (tmpSlotSelected.item != null) // Jika slot yang di klik adalah slot kosong
                 currentSlotSelected = tmpSlotSelected;
@@ -174,7 +175,7 @@ public class FieldController : MonoBehaviour
         {
             // Double Click
             // TODO: jika dia booster maka harus ada waktu untuk cancel double click
-            Debug.Log("Double Click");
+            // Debug.Log("Double Click");
         }
         else if (currentSlotSelected != tmpSlotSelected)
         {
@@ -182,12 +183,12 @@ public class FieldController : MonoBehaviour
             {
                 // Swap
                 // TODO: Handle Touch End
-                Debug.Log("Swap");
+                // Debug.Log("Swap");
                 currentSlotSelected.item.Swap(tmpSlotSelected);
             }
             else
             {
-                Debug.Log("Not Neighbour, Then return");
+                // Debug.Log("Not Neighbour, Then return");
             }
             currentSlotSelected = null;
         }
@@ -205,14 +206,14 @@ public class FieldController : MonoBehaviour
         Vector2 deltaPosition = endTouchPosition - startTouchPosition;
 
         Direction direction = Utilities.GetDirectionGesture(deltaPosition);
-        Debug.Log(direction.ToString());
+        // Debug.Log(direction.ToString());
         Slot targetSlot = currentSlotSelected.GetNeighBour(direction);
 
         if (direction != Direction.NONE)
         {
             //Swap
             if (targetSlot == null) return;
-            Debug.Log("Swap");
+            // Debug.Log("Swap");
             currentSlotSelected.item.Swap(targetSlot);
             currentSlotSelected = null;
         }

@@ -7,11 +7,11 @@ public class Slot : MonoBehaviour
     public FieldController fieldController;
     public Item item;
     public int row, col;
-    public CombineHelper combineHelper;
+    public MatchHelper matchHelper;
 
     void Awake()
     {
-        combineHelper = new CombineHelper(this);
+        matchHelper = new MatchHelper(this);
     }
 
     // Use this for initialization
@@ -65,12 +65,12 @@ public class Slot : MonoBehaviour
         return slots;
     }
 
-    public CombineHelper TryMatch()
+    public MatchHelper TryMatch()
     {
-        combineHelper.reset();
-        combineHelper.Calculate();
+        matchHelper.reset();
+        matchHelper.Calculate();
 
-        return combineHelper;
+        return matchHelper;
     }
 
     // Update is called once per frame

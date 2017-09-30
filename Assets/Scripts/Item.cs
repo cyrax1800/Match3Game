@@ -15,6 +15,8 @@ public class Item : MonoBehaviour
     Slot neighbourSlot;
     Item neighbourItem;
 
+    Item nextTarget;
+
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -104,7 +106,8 @@ public class Item : MonoBehaviour
         neighbourSlot.item = this;
         slot.item = neighbourItem;
 
-        CombineHelper combineHelperThis = neighbourSlot.TryMatch();
+        MatchHelper matchHelperThis = neighbourSlot.TryMatch();
+        MatchHelper matchHelperNeighbour = slot.TryMatch();
 
         float startTime = Time.time;
         float duration = .25f;
@@ -116,11 +119,25 @@ public class Item : MonoBehaviour
         {
             t = (Time.time - startTime) / duration;
             transform.position = Vector2.Lerp(startPosition, targetPosition, t);
-            neighbourItem.transform.position = Vector2.Lerp(targetPosition, startPosition, t);
+            if (neighbourItem != null)
+                neighbourItem.transform.position = Vector2.Lerp(targetPosition, startPosition, t);
             yield return null;
         }
 
-        backMove = true;
+        if (matchHelperThis.canMatch || matchHelperNeighbour.canMatch)
+        {
+            if (neighbourItem != null)
+                neighbourItem.slot = slot;
+            slot = neighbourSlot;
+            StartCoroutine(matchHelperThis.DoMatch());
+            StartCoroutine(matchHelperNeighbour.DoMatch());
+        }
+        else
+        {
+            backMove = true;
+        }
+
+        yield return null;
 
         if (backMove)
         {
@@ -132,13 +149,56 @@ public class Item : MonoBehaviour
             {
                 t = (Time.time - startTime) / duration;
                 transform.position = Vector2.Lerp(targetPosition, startPosition, t);
-                neighbourItem.transform.position = Vector2.Lerp(startPosition, targetPosition, t);
+                if (neighbourItem != null)
+                    neighbourItem.transform.position = Vector2.Lerp(startPosition, targetPosition, t);
                 yield return null;
             }
         }
 
         isSwapping = false;
 
+    }
+
+    public void DestroyItem(Slot combineTarget = null, bool isCombine = false)
+    {
+        slot.item = null;
+        if (isCombine)
+            StartCoroutine(DestroyItemAnimation(combineTarget, isCombine));
+        else
+            Destroy(gameObject);
+    }
+
+    public void DestroyItem(int totalMatch = 0)
+    {
+        if (totalMatch >= 4)
+            StartCoroutine(ChangeToBoosterAnimation());
+        else
+            Destroy(gameObject);
+    }
+
+    IEnumerator DestroyItemAnimation(Slot combineTarget = null, bool isCombine = false)
+    {
+        yield return null;
+
+        float startTime = Time.time;
+        float duration = .1f;
+        float t = 0;
+        Vector2 startPosition = slot.transform.position;
+        Vector2 targetPosition = combineTarget.transform.position;
+
+        while (t < 1)
+        {
+            t = (Time.time - startTime) / duration;
+            transform.position = Vector2.Lerp(startPosition, targetPosition, t);
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
+    IEnumerator ChangeToBoosterAnimation()
+    {
+        yield return null;
     }
 
     // Update is called once per frame
