@@ -5,6 +5,14 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
 
+    public enum GameState
+    {
+        Start,
+        Initialize,
+        Playing,
+        GameOver
+    }
+
     // Only Used in Editor Inspector
     public ColorSpriteField[] colorSprites = new ColorSpriteField[Utilities.GetEnumEntries<Utilities.Color>() - 1];
     //
@@ -15,6 +23,9 @@ public class GameController : MonoBehaviour
 
     public FieldController fieldController;
 
+    [HideInInspector]
+    public static GameState gameState = GameState.Start;
+
     void Awake()
     {
 
@@ -23,6 +34,7 @@ public class GameController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        GameController.gameState = GameState.Initialize;
         Initialize();
     }
 

@@ -11,6 +11,7 @@ public class Item : MonoBehaviour
     public Utilities.Color color;
 
     public bool isSwapping;
+    public bool isFalling;
 
     Slot neighbourSlot;
     Item neighbourItem;
@@ -26,7 +27,7 @@ public class Item : MonoBehaviour
     void Start()
     {
         transform.position = slot.transform.position;
-        GenColor();
+        GenColor(color);
     }
 
     void GenColor(Utilities.Color targetColor = Utilities.Color.RANDOM)
@@ -100,6 +101,7 @@ public class Item : MonoBehaviour
     {
         yield return null;
         isSwapping = true;
+        if (neighbourSlot.item) neighbourSlot.item.isSwapping = true;
 
         bool backMove = false;
 
@@ -156,7 +158,7 @@ public class Item : MonoBehaviour
         }
 
         isSwapping = false;
-
+        if (neighbourItem) neighbourItem.isSwapping = false;
     }
 
     public void DestroyItem(Slot combineTarget = null, bool isCombine = false)
@@ -170,7 +172,7 @@ public class Item : MonoBehaviour
 
     public void DestroyItem(int totalMatch = 0)
     {
-        if (totalMatch >= 4)
+        if (totalMatch >= 3)
             StartCoroutine(ChangeToBoosterAnimation());
         else
             Destroy(gameObject);

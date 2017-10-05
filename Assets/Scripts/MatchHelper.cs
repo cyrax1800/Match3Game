@@ -34,7 +34,7 @@ public class MatchHelper
         if (listedHorizontalItems.Count >= 2)
             totalMatch += listedHorizontalItems.Count;
 
-        isCombine = totalMatch >= 4;
+        isCombine = totalMatch >= 3;
 
         if (listedVerticalItems.Count >= 2)
         {

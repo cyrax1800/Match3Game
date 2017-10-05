@@ -21,6 +21,9 @@ public class FieldController : MonoBehaviour
     public GameObject slotPrefab;
     public GameObject itemPrefab;
 
+    [HideInInspector]
+    public Test test;
+
     MetaGesture metaGesture;
 
     Slot currentSlotSelected;
@@ -28,9 +31,11 @@ public class FieldController : MonoBehaviour
 
     Slot[] slotArr;
 
+    [HideInInspector]
+    public int maxRow, maxCol;
+
     Dictionary<Utilities.Color, Sprite> colorSpriteDict = new Dictionary<Utilities.Color, Sprite>();
     bool isSwapping = false;
-    int maxRow, maxCol;
     int colorVariant;
     Vector2 startTouchPosition, endTouchPosition;
     Vector2 firstSlotPosition;
@@ -40,6 +45,10 @@ public class FieldController : MonoBehaviour
     void Awake()
     {
         metaGesture = transform.GetComponent<MetaGesture>();
+
+        // TextAsset targetFile = Resources.Load<TextAsset>("levelingTestCase");
+        // TestCase testCase = JsonUtility.FromJson<TestCase>(targetFile.text);
+        // test = testCase.testCase[0];
     }
 
     // Use this for initialization
@@ -74,6 +83,8 @@ public class FieldController : MonoBehaviour
         }
 
         GenerateNewItems();
+
+        GameController.gameState = GameController.GameState.Playing;
     }
 
     void CreateSlot(int row, int col)
@@ -163,7 +174,7 @@ public class FieldController : MonoBehaviour
         Slot tmpSlotSelected = touchHit.RaycastHit2D.collider.gameObject.GetComponent<Slot>();
         // Debug.Log("Began");
         if (currentSlotSelected == null && tmpSlotSelected.item == null) return;
-        if (tmpSlotSelected.item != null && tmpSlotSelected.item.isSwapping) return;
+        if (tmpSlotSelected.item != null && (tmpSlotSelected.item.isSwapping || tmpSlotSelected.item.isFalling)) return;
         if (currentSlotSelected == null)
         {
             // Debug.Log("Click");
@@ -212,12 +223,10 @@ public class FieldController : MonoBehaviour
         if (direction != Direction.NONE)
         {
             //Swap
-            if (targetSlot == null) return;
-            // Debug.Log("Swap");
-            currentSlotSelected.item.Swap(targetSlot);
+            if (!(targetSlot == null || (targetSlot.item != null && (targetSlot.item.isSwapping || targetSlot.item.isFalling))))
+                currentSlotSelected.item.Swap(targetSlot);
             currentSlotSelected = null;
         }
-
-
+        // Debug.Log("Swap");
     }
 }

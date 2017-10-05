@@ -27,6 +27,17 @@ public class Slot : MonoBehaviour
         item = itemGO.GetComponent<Item>();
         item.slot = this;
         item.fieldController = fieldController;
+        item.color = Utilities.Color.RANDOM;
+        if (GameController.gameState == GameController.GameState.Initialize)
+        {
+            if (fieldController.test != null && fieldController.test.board.Count > 0)
+            {
+                Debug.Log(row * fieldController.maxRow + col);
+                int color = fieldController.test.board[row * fieldController.maxRow + col];
+                if (color > 0)
+                    item.color = (Utilities.Color)color - 1;
+            }
+        }
         return item;
     }
 
@@ -39,15 +50,15 @@ public class Slot : MonoBehaviour
                     return fieldController.GetSlot(row - 1, col);
                 break;
             case FieldController.Direction.DOWN:
-                if (row > 0)
+                if (row < fieldController.maxRow - 1)
                     return fieldController.GetSlot(row + 1, col);
                 break;
             case FieldController.Direction.LEFT:
-                if (row > 0)
+                if (col > 0)
                     return fieldController.GetSlot(row, col - 1);
                 break;
             case FieldController.Direction.RIGHT:
-                if (row > 0)
+                if (col < fieldController.maxCol - 1)
                     return fieldController.GetSlot(row, col + 1);
                 break;
         }
