@@ -26,8 +26,16 @@ public class Item : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        transform.position = slot.transform.position;
         GenColor(color);
+    }
+
+    public void setPosition(bool falling = true)
+    {
+        transform.position = slot.transform.position;
+        if (falling)
+        {
+            transform.position += fieldController.GetTopPosition();
+        }
     }
 
     void GenColor(Utilities.Color targetColor = Utilities.Color.RANDOM)
@@ -133,6 +141,8 @@ public class Item : MonoBehaviour
             slot = neighbourSlot;
             StartCoroutine(matchHelperThis.DoMatch());
             StartCoroutine(matchHelperNeighbour.DoMatch());
+
+            fieldController.FindMatches();
         }
         else
         {
@@ -161,6 +171,52 @@ public class Item : MonoBehaviour
         if (neighbourItem) neighbourItem.isSwapping = false;
     }
 
+    public void StartFalling()
+    {
+        if (!isFalling)
+            StartCoroutine(FallingCoroutine());
+    }
+
+    IEnumerator FallingCoroutine()
+    {
+        isFalling = true;
+        isSwapping = false;
+
+        float startTime = Time.time;
+        float duration = .25f;
+        float t = 0;
+        Vector2 startPosition = transform.position;
+        Vector2 targetPosition = slot.transform.position;
+
+        while (t < 1)
+        {
+            t = (Time.time - startTime) / duration;
+            transform.position = Vector2.Lerp(startPosition, targetPosition, t);
+            yield return null;
+        }
+
+        if (!slot.CanFallNext())
+        {
+            MatchHelper matchHelper = slot.TryMatch();
+
+            if (matchHelper.canMatch)
+            {
+                StartCoroutine(matchHelper.DoMatch());
+
+                fieldController.requireCallFallCoroutine = true;
+                slot.FallNext();
+            }
+        }
+        else
+        {
+            isFalling = false;
+            slot.FallNext();
+        }
+
+        isSwapping = false;
+        isFalling = false;
+    }
+
     public void DestroyItem(Slot combineTarget = null, bool isCombine = false)
     {
         slot.item = null;
@@ -175,13 +231,14 @@ public class Item : MonoBehaviour
         if (totalMatch >= 3)
             StartCoroutine(ChangeToBoosterAnimation());
         else
+        {
+            slot.item = null;
             Destroy(gameObject);
+        }
     }
 
     IEnumerator DestroyItemAnimation(Slot combineTarget = null, bool isCombine = false)
     {
-        yield return null;
-
         float startTime = Time.time;
         float duration = .1f;
         float t = 0;
@@ -196,10 +253,23 @@ public class Item : MonoBehaviour
         }
 
         Destroy(gameObject);
+
+        fieldController.requireCallFallCoroutine = true;
     }
 
     IEnumerator ChangeToBoosterAnimation()
     {
+
+        float startTime = Time.time;
+        float duration = .1f;
+        float t = 0;
+
+        while (t < 1)
+        {
+            t = (Time.time - startTime) / duration;
+            yield return null;
+        }
+
         yield return null;
     }
 

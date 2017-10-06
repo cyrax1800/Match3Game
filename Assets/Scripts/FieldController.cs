@@ -33,6 +33,8 @@ public class FieldController : MonoBehaviour
 
     [HideInInspector]
     public int maxRow, maxCol;
+    [HideInInspector]
+    public bool requireCallFallCoroutine;
 
     Dictionary<Utilities.Color, Sprite> colorSpriteDict = new Dictionary<Utilities.Color, Sprite>();
     bool isSwapping = false;
@@ -48,7 +50,7 @@ public class FieldController : MonoBehaviour
 
         // TextAsset targetFile = Resources.Load<TextAsset>("levelingTestCase");
         // TestCase testCase = JsonUtility.FromJson<TestCase>(targetFile.text);
-        // test = testCase.testCase[0];
+        // test = testCase.testCase[2];
     }
 
     // Use this for initialization
@@ -82,7 +84,7 @@ public class FieldController : MonoBehaviour
             }
         }
 
-        GenerateNewItems();
+        GenerateNewItems(false);
 
         GameController.gameState = GameController.GameState.Playing;
     }
@@ -104,18 +106,100 @@ public class FieldController : MonoBehaviour
 
     }
 
-    void GenerateNewItems()
+    void GenerateNewItems(bool falling = true)
     {
         for (int row = 0; row < maxRow; row++)
         {
             for (int col = 0; col < maxCol; col++)
             {
-                if (GetSlot(col, row) != null)
-                {
-                    Item slot = GetSlot(row, col).GenerateItem();
-                }
+                GenerateSingleNewItems(row, col, falling);
             }
         }
+    }
+
+    void GenerateSingleNewItems(int row, int col, bool falling = true)
+    {
+        Slot slot = GetSlot(row, col);
+        if (slot != null && slot.item == null)
+        {
+            Item item = slot.GenerateItem(falling);
+        }
+    }
+
+    public void FindMatches()
+    {
+        StopCoroutine(FallingDown());
+        StartCoroutine(FallingDown());
+    }
+
+    IEnumerator FallingDown()
+    {
+        requireCallFallCoroutine = false;
+
+        yield return null;
+
+        while (true)
+        {
+            for (int row = maxRow - 1; row > -1; row--)
+            {
+                for (int col = 0; col < maxCol; col++)
+                {
+                    Slot slot = GetSlot(row, col);
+                    if (slot != null)
+                    {
+                        if (slot.item != null && !slot.item.isFalling)
+                            slot.FallNext();
+                    }
+                }
+            }
+
+            int countEmpty = 0;
+
+            for (int col = 0; col < maxCol; col++)
+            {
+                Slot slot = GetSlot(0, col);
+                if (slot != null)
+                {
+                    if (slot.item == null)
+                    {
+                        countEmpty++;
+                        GenerateSingleNewItems(0, col);
+                    }
+                }
+            }
+
+            if (countEmpty == 0 && IsAllItemsFallDown())
+                break;
+            yield return null;
+        }
+
+        if (requireCallFallCoroutine) FindMatches();
+    }
+
+    bool IsAllItemsFallDown()
+    {
+        if (GameController.gameState == GameController.GameState.Playing)
+        {
+            for (int i = 0; i < slotArr.Length; i++)
+                if (slotArr[i].item && slotArr[i].item.isFalling)
+                    return false;
+        }
+        return true;
+    }
+
+    void checkPosibleMove()
+    {
+
+    }
+
+    void shuffle()
+    {
+
+    }
+
+    void showHighlight()
+    {
+
     }
 
     public Slot GetSlot(int row, int col, bool safe = false)
@@ -132,6 +216,11 @@ public class FieldController : MonoBehaviour
             col = Mathf.Clamp(col, 0, maxCol - 1);
             return slotArr[row * maxCol + col];
         }
+    }
+
+    public Vector3 GetTopPosition()
+    {
+        return new Vector3(0, squareHeight);
     }
 
     public Sprite GetSpriteOfColor(Utilities.Color color)

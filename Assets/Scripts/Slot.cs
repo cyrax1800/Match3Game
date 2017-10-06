@@ -20,25 +20,54 @@ public class Slot : MonoBehaviour
 
     }
 
-    public Item GenerateItem()
+    public Item GenerateItem(bool falling = true)
     {
         GameObject itemGO = Instantiate(fieldController.itemPrefab) as GameObject;
         itemGO.transform.SetParent(transform.parent);
         item = itemGO.GetComponent<Item>();
         item.slot = this;
         item.fieldController = fieldController;
+        item.setPosition(falling);
         item.color = Utilities.Color.RANDOM;
         if (GameController.gameState == GameController.GameState.Initialize)
         {
             if (fieldController.test != null && fieldController.test.board.Count > 0)
             {
-                Debug.Log(row * fieldController.maxRow + col);
                 int color = fieldController.test.board[row * fieldController.maxRow + col];
                 if (color > 0)
                     item.color = (Utilities.Color)color - 1;
             }
         }
+
+        if (falling) item.StartFalling();
         return item;
+    }
+
+    public void FallNext(bool force = false)
+    {
+        if (item != null)
+        {
+            Slot nextSlot = GetNeighBour(FieldController.Direction.DOWN);
+            if (nextSlot != null)
+            {
+                if (nextSlot.item == null)
+                {
+                    nextSlot.item = item;
+                    item.slot = nextSlot;
+                    item.StartFalling();
+                    item = null;
+                }
+            }
+        }
+    }
+
+    public bool CanFallNext()
+    {
+        Slot nextSlot = GetNeighBour(FieldController.Direction.DOWN);
+        if (nextSlot != null)
+            if (nextSlot.item == null)
+                return true;
+        return false;
     }
 
     public Slot GetNeighBour(FieldController.Direction direction)

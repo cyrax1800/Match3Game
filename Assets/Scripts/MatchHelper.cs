@@ -26,7 +26,6 @@ public class MatchHelper
 
     public IEnumerator DoMatch()
     {
-        yield return null;
         if (!canMatch) yield break;
         isCombine = false;
         if (listedVerticalItems.Count >= 2)
@@ -41,7 +40,6 @@ public class MatchHelper
             for (int i = 0; i < listedVerticalItems.Count; i++)
             {
                 listedVerticalItems[i].DestroyItem(slot, isCombine);
-                yield return null;
             }
         }
         if (listedHorizontalItems.Count >= 2)
@@ -49,7 +47,6 @@ public class MatchHelper
             for (int i = 0; i < listedHorizontalItems.Count; i++)
             {
                 listedHorizontalItems[i].DestroyItem(slot, isCombine);
-                yield return null;
             }
         }
         if (slot.item != null)
