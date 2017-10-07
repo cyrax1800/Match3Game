@@ -27,7 +27,6 @@ public class FieldController : MonoBehaviour
     [HideInInspector]
     public bool requireCallFallCoroutine;
 
-    Dictionary<ItemColor, Sprite> colorSpriteDict = new Dictionary<ItemColor, Sprite>();
     bool isSwapping = false;
     int colorVariant;
     Vector2 startTouchPosition, endTouchPosition;
@@ -55,9 +54,6 @@ public class FieldController : MonoBehaviour
         this.maxRow = gameController.maxRow;
         this.maxCol = gameController.maxCol;
         this.colorVariant = gameController.colorVariant;
-
-        for (int i = 0; i < gameController.colorSprites.Length; i++)
-            colorSpriteDict.Add(gameController.colorSprites[i].color, gameController.colorSprites[i].sprite);
 
         slotArr = new Slot[maxRow * maxCol];
 
@@ -216,7 +212,20 @@ public class FieldController : MonoBehaviour
 
     public Sprite GetSpriteOfColor(ItemColor color)
     {
-        return colorSpriteDict[color];
+        return gameController.colorSpriteDict[color];
+    }
+
+    public Sprite GetSpriteOfBomb(ItemType itemType, ItemColor color)
+    {
+        if (GameController.boosterUsingColor)
+        {
+            if ((itemType == ItemType.VERTICAL) || (itemType == ItemType.HORIZONTAL))
+            {
+
+            }
+        }
+
+        return gameController.typeSpriteDict[itemType];
     }
 
     // Update is called once per frame

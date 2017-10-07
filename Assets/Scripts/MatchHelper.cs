@@ -49,8 +49,26 @@ public class MatchHelper
                 listedHorizontalItems[i].DestroyItem(slot, isCombine);
             }
         }
+
+        ItemType itemType = ItemType.NONE;
+
+        if (isSquare)
+            itemType = ItemType.AIRPLANE;
+        else if (listedVerticalItems.Count == 3 && listedHorizontalItems.Count == 0)
+            itemType = ItemType.HORIZONTAL;
+        else if (listedVerticalItems.Count == 0 && listedHorizontalItems.Count == 3)
+            itemType = ItemType.VERTICAL;
+        else if ((listedVerticalItems.Count == 4 && listedHorizontalItems.Count == 0) || (listedVerticalItems.Count == 0 && listedHorizontalItems.Count == 4))
+            itemType = ItemType.COLOR_BOMB;
+        else if (totalMatch == 4 && (listedVerticalItems.Count == 2 && listedHorizontalItems.Count == 2))
+            itemType = ItemType.BOMB;
+        else if (totalMatch == 5)
+            itemType = ItemType.DYNAMITE;
+        else if (totalMatch == 6)
+            itemType = ItemType.BIOHAZARD;
+
         if (slot.item != null)
-            slot.item.DestroyItem(totalMatch);
+            slot.item.DestroyItem(itemType);
     }
 
     public void Calculate()

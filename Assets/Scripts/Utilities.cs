@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public static class Utilities
@@ -40,5 +41,13 @@ public static class Utilities
             throw new ArgumentException("T must be an enumerated type");
 
         return Enum.GetNames(typeof(T)).Length;
+    }
+
+    public static TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+    public static string ToTitleCase(this string str)
+    {
+        str = str.Replace("_", " ");
+        str = str.ToLower();
+        return textInfo.ToTitleCase(str);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,16 +7,19 @@ public class GameController : MonoBehaviour
 {
 
     // Only Used in Editor Inspector
-    public ColorSpriteField[] colorSprites = new ColorSpriteField[Utilities.GetEnumEntries<ItemColor>() - 1];
+    public ItemColorSprite colorSpriteDict = new ItemColorSprite();
+    public ItemColorSprite VerticalSpriteDict = new ItemColorSprite();
+    public ItemColorSprite HorizontalSpriteDict = new ItemColorSprite();
+    public ItemTypeSprite typeSpriteDict = new ItemTypeSprite();
     //
 
     public int maxRow = 8;
     public int maxCol = 8;
     public int colorVariant = 4;
+    public static bool boosterUsingColor = false;
 
     public FieldController fieldController;
 
-    [HideInInspector]
     public static GameState gameState = GameState.Start;
 
     void Awake()

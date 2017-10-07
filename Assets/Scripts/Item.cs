@@ -8,6 +8,7 @@ public class Item : MonoBehaviour
     public Slot slot;
     public SpriteRenderer spriteRenderer;
     public ItemColor color;
+    public ItemType type = ItemType.NONE;
 
     public bool isSwapping;
     public bool isFalling;
@@ -225,10 +226,10 @@ public class Item : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void DestroyItem(int totalMatch = 0)
+    public void DestroyItem(ItemType targetItemType)
     {
-        if (totalMatch >= 3)
-            StartCoroutine(ChangeToBoosterAnimation());
+        if (targetItemType != ItemType.NONE && targetItemType != ItemType.DROP)
+            StartCoroutine(ChangeToBoosterAnimation(targetItemType));
         else
         {
             slot.item = null;
@@ -256,7 +257,7 @@ public class Item : MonoBehaviour
         fieldController.requireCallFallCoroutine = true;
     }
 
-    IEnumerator ChangeToBoosterAnimation()
+    IEnumerator ChangeToBoosterAnimation(ItemType targetItemType)
     {
         isFalling = true;
 
@@ -267,6 +268,21 @@ public class Item : MonoBehaviour
         while (t < 1)
         {
             t = (Time.time - startTime) / duration;
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
+            yield return null;
+        }
+
+        type = targetItemType;
+        if (!GameController.boosterUsingColor) color = ItemColor.RANDOM;
+        spriteRenderer.sprite = fieldController.GetSpriteOfBomb(targetItemType, color);
+
+        startTime = Time.time;
+        t = 0;
+
+        while (t < 1)
+        {
+            t = (Time.time - startTime) / duration;
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
             yield return null;
         }
 

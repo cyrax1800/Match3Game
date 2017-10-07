@@ -15,7 +15,20 @@ public enum ItemColor
     GREEN,
     YELLOW,
     PURPLE,
-    wHITE
+    WHITE
+}
+
+public enum ItemType
+{
+    NONE,
+    VERTICAL, // 4 line
+    HORIZONTAL, // 4 line
+    AIRPLANE, // 4 square
+    BOMB, // 5 ( 2 hor, 2 ver)
+    DYNAMITE, // 6
+    COLOR_BOMB, // 5 line
+    BIOHAZARD, // 7
+    DROP
 }
 
 public enum GameState
