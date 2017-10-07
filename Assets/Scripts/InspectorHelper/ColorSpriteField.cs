@@ -5,6 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class ColorSpriteField
 {
-    public Utilities.Color color;
+    public ItemColor color;
     public Sprite sprite;
 }

@@ -28,14 +28,14 @@ public class Slot : MonoBehaviour
         item.slot = this;
         item.fieldController = fieldController;
         item.setPosition(falling);
-        item.color = Utilities.Color.RANDOM;
-        if (GameController.gameState == GameController.GameState.Initialize)
+        item.color = ItemColor.RANDOM;
+        if (GameController.gameState == GameState.Initialize)
         {
             if (fieldController.test != null && fieldController.test.board.Count > 0)
             {
                 int color = fieldController.test.board[row * fieldController.maxRow + col];
                 if (color > 0)
-                    item.color = (Utilities.Color)color - 1;
+                    item.color = (ItemColor)color - 1;
             }
         }
 
@@ -47,7 +47,7 @@ public class Slot : MonoBehaviour
     {
         if (item != null)
         {
-            Slot nextSlot = GetNeighBour(FieldController.Direction.DOWN);
+            Slot nextSlot = GetNeighBour(Direction.DOWN);
             if (nextSlot != null)
             {
                 if (nextSlot.item == null)
@@ -63,30 +63,30 @@ public class Slot : MonoBehaviour
 
     public bool CanFallNext()
     {
-        Slot nextSlot = GetNeighBour(FieldController.Direction.DOWN);
+        Slot nextSlot = GetNeighBour(Direction.DOWN);
         if (nextSlot != null)
             if (nextSlot.item == null)
                 return true;
         return false;
     }
 
-    public Slot GetNeighBour(FieldController.Direction direction)
+    public Slot GetNeighBour(Direction direction)
     {
         switch (direction)
         {
-            case FieldController.Direction.UP:
+            case Direction.UP:
                 if (row > 0)
                     return fieldController.GetSlot(row - 1, col);
                 break;
-            case FieldController.Direction.DOWN:
+            case Direction.DOWN:
                 if (row < fieldController.maxRow - 1)
                     return fieldController.GetSlot(row + 1, col);
                 break;
-            case FieldController.Direction.LEFT:
+            case Direction.LEFT:
                 if (col > 0)
                     return fieldController.GetSlot(row, col - 1);
                 break;
-            case FieldController.Direction.RIGHT:
+            case Direction.RIGHT:
                 if (col < fieldController.maxCol - 1)
                     return fieldController.GetSlot(row, col + 1);
                 break;
@@ -98,10 +98,10 @@ public class Slot : MonoBehaviour
     public Slot[] GetAllNeighBour()
     {
         Slot[] slots = new Slot[4];
-        slots[0] = GetNeighBour(FieldController.Direction.UP);
-        slots[1] = GetNeighBour(FieldController.Direction.DOWN);
-        slots[2] = GetNeighBour(FieldController.Direction.RIGHT);
-        slots[3] = GetNeighBour(FieldController.Direction.LEFT);
+        slots[0] = GetNeighBour(Direction.UP);
+        slots[1] = GetNeighBour(Direction.DOWN);
+        slots[2] = GetNeighBour(Direction.RIGHT);
+        slots[3] = GetNeighBour(Direction.LEFT);
         return slots;
     }
 

@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-
     public FieldController fieldController;
     public Slot slot;
     public SpriteRenderer spriteRenderer;
-    public Utilities.Color color;
+    public ItemColor color;
 
     public bool isSwapping;
     public bool isFalling;
@@ -38,7 +37,7 @@ public class Item : MonoBehaviour
         }
     }
 
-    void GenColor(Utilities.Color targetColor = Utilities.Color.RANDOM)
+    void GenColor(ItemColor targetColor = ItemColor.RANDOM)
     {
 
         int row = slot.row;
@@ -88,9 +87,9 @@ public class Item : MonoBehaviour
                 remainColor.Add(i);
         }
 
-        if (targetColor == Utilities.Color.RANDOM)
+        if (targetColor == ItemColor.RANDOM)
         {
-            targetColor = (Utilities.Color)remainColor[UnityEngine.Random.Range(0, remainColor.Count)];
+            targetColor = (ItemColor)remainColor[UnityEngine.Random.Range(0, remainColor.Count)];
         }
         spriteRenderer.sprite = fieldController.GetSpriteOfColor(targetColor);
 
@@ -259,6 +258,7 @@ public class Item : MonoBehaviour
 
     IEnumerator ChangeToBoosterAnimation()
     {
+        isFalling = true;
 
         float startTime = Time.time;
         float duration = .1f;
@@ -270,7 +270,12 @@ public class Item : MonoBehaviour
             yield return null;
         }
 
+        isFalling = false;
+        isSwapping = false;
+
         yield return null;
+
+        slot.FallNext();
     }
 
     // Update is called once per frame

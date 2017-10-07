@@ -5,16 +5,8 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
 
-    public enum GameState
-    {
-        Start,
-        Initialize,
-        Playing,
-        GameOver
-    }
-
     // Only Used in Editor Inspector
-    public ColorSpriteField[] colorSprites = new ColorSpriteField[Utilities.GetEnumEntries<Utilities.Color>() - 1];
+    public ColorSpriteField[] colorSprites = new ColorSpriteField[Utilities.GetEnumEntries<ItemColor>() - 1];
     //
 
     public int maxRow = 8;

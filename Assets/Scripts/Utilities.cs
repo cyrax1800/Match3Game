@@ -6,34 +6,23 @@ using UnityEngine;
 public static class Utilities
 {
 
-    public enum Color
-    {
-        RANDOM = -1,
-        RED,
-        BLUE,
-        GREEN,
-        YELLOW,
-        PURPLE,
-        wHITE
-    }
-
-    public static FieldController.Direction GetDirectionGesture(Vector3 deltaPosition)
+    public static Direction GetDirectionGesture(Vector3 deltaPosition)
     {
         if (Math.Max(Math.Abs(deltaPosition.x), Math.Abs(deltaPosition.y)) == Math.Abs(deltaPosition.x))
         {
             if (deltaPosition.x < 0)
-                return FieldController.Direction.LEFT;
+                return Direction.LEFT;
             else if (deltaPosition.x > 0)
-                return FieldController.Direction.RIGHT;
+                return Direction.RIGHT;
         }
         else
         {
             if (deltaPosition.y < 0)
-                return FieldController.Direction.DOWN;
+                return Direction.DOWN;
             else if (deltaPosition.y > 0)
-                return FieldController.Direction.UP;
+                return Direction.UP;
         }
-        return FieldController.Direction.NONE;
+        return Direction.NONE;
     }
 
     public static bool IsNeighbour(Slot currentSlot, Slot targetSlot)

@@ -8,15 +8,6 @@ using UnityEngine;
 public class FieldController : MonoBehaviour
 {
 
-    public enum Direction
-    {
-        NONE = -1,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
-
     public GameController gameController;
     public GameObject slotPrefab;
     public GameObject itemPrefab;
@@ -36,7 +27,7 @@ public class FieldController : MonoBehaviour
     [HideInInspector]
     public bool requireCallFallCoroutine;
 
-    Dictionary<Utilities.Color, Sprite> colorSpriteDict = new Dictionary<Utilities.Color, Sprite>();
+    Dictionary<ItemColor, Sprite> colorSpriteDict = new Dictionary<ItemColor, Sprite>();
     bool isSwapping = false;
     int colorVariant;
     Vector2 startTouchPosition, endTouchPosition;
@@ -86,7 +77,7 @@ public class FieldController : MonoBehaviour
 
         GenerateNewItems(false);
 
-        GameController.gameState = GameController.GameState.Playing;
+        GameController.gameState = GameState.Playing;
     }
 
     void CreateSlot(int row, int col)
@@ -178,7 +169,7 @@ public class FieldController : MonoBehaviour
 
     bool IsAllItemsFallDown()
     {
-        if (GameController.gameState == GameController.GameState.Playing)
+        if (GameController.gameState == GameState.Playing)
         {
             for (int i = 0; i < slotArr.Length; i++)
                 if (slotArr[i].item && slotArr[i].item.isFalling)
@@ -223,7 +214,7 @@ public class FieldController : MonoBehaviour
         return new Vector3(0, squareHeight);
     }
 
-    public Sprite GetSpriteOfColor(Utilities.Color color)
+    public Sprite GetSpriteOfColor(ItemColor color)
     {
         return colorSpriteDict[color];
     }

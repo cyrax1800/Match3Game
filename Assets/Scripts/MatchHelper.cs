@@ -13,7 +13,7 @@ public class MatchHelper
     public List<Item> listedVerticalItems;
     public List<Item> listedHorizontalItems;
 
-    public FieldController.Direction currentDirection;
+    public Direction currentDirection;
     public int curRow, curCol;
     public Slot neighbour;
 
@@ -56,7 +56,7 @@ public class MatchHelper
     public void Calculate()
     {
         //Check Vertical and Horizontal Swap
-        CheckVerHorColor(FieldController.Direction.UP);
+        CheckVerHorColor(Direction.UP);
         // Debug.Log("Vectical: " + listedVerticalItems.Count + " Horizontal: " + listedHorizontalItems.Count);
         if (listedVerticalItems.Count >= 2 || listedHorizontalItems.Count >= 2)
         {
@@ -73,7 +73,7 @@ public class MatchHelper
         }
     }
 
-    public void CheckVerHorColor(FieldController.Direction direction)
+    public void CheckVerHorColor(Direction direction)
     {
         if (direction != currentDirection)
         {
@@ -82,10 +82,10 @@ public class MatchHelper
             neighbour = slot;
             currentDirection = direction;
         }
-        if (currentDirection != FieldController.Direction.NONE)
+        if (currentDirection != Direction.NONE)
             neighbour = neighbour.GetNeighBour(currentDirection);
 
-        if (currentDirection != FieldController.Direction.NONE)
+        if (currentDirection != Direction.NONE)
         {
             if (neighbour != null)
             {
@@ -93,7 +93,7 @@ public class MatchHelper
                 {
                     if (neighbour.item.color == slot.item.color)
                     {
-                        if (currentDirection == FieldController.Direction.UP || currentDirection == FieldController.Direction.DOWN)
+                        if (currentDirection == Direction.UP || currentDirection == Direction.DOWN)
                         {
                             if (listedVerticalItems.IndexOf(neighbour.item) == -1)
                                 listedVerticalItems.Add(neighbour.item);
@@ -108,12 +108,12 @@ public class MatchHelper
                 }
             }
         }
-        if (currentDirection == FieldController.Direction.UP)
-            CheckVerHorColor(FieldController.Direction.DOWN);
-        else if (currentDirection == FieldController.Direction.DOWN)
-            CheckVerHorColor(FieldController.Direction.LEFT);
-        else if (currentDirection == FieldController.Direction.LEFT)
-            CheckVerHorColor(FieldController.Direction.RIGHT);
+        if (currentDirection == Direction.UP)
+            CheckVerHorColor(Direction.DOWN);
+        else if (currentDirection == Direction.DOWN)
+            CheckVerHorColor(Direction.LEFT);
+        else if (currentDirection == Direction.LEFT)
+            CheckVerHorColor(Direction.RIGHT);
     }
 
     public int[][] squareMatchChecker = new int[][] { new int[] { -1, -1 }, new int[] { -1, 1 }, new int[] { 1, -1 }, new int[] { 1, 1 } };
@@ -153,7 +153,7 @@ public class MatchHelper
         totalMatch = 0;
         listedVerticalItems.Clear();
         listedHorizontalItems.Clear();
-        currentDirection = FieldController.Direction.NONE;
+        currentDirection = Direction.NONE;
         canMatch = false;
     }
 }
