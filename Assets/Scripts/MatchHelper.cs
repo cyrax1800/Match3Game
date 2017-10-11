@@ -68,11 +68,21 @@ public class MatchHelper
             itemType = ItemType.BIOHAZARD;
 
         if (slot.item != null)
+        {
+            if (!slot.item.isNone()) itemType = slot.item.type;
             slot.item.DestroyItem(itemType);
+        }
     }
 
     public void Calculate()
     {
+        if (slot.item.isDropItem()) return;
+        if (!slot.item.isBoosterHasColor())
+        {
+            canMatch = true;
+            return;
+        }
+
         //Check Vertical and Horizontal Swap
         CheckVerHorColor(Direction.UP);
         // Debug.Log("Vectical: " + listedVerticalItems.Count + " Horizontal: " + listedHorizontalItems.Count);
@@ -109,7 +119,7 @@ public class MatchHelper
             {
                 if (neighbour.item != null && slot.item != null)
                 {
-                    if (neighbour.item.color == slot.item.color)
+                    if (isSameColorForMatchBetween(neighbour.item, slot.item))
                     {
                         if (currentDirection == Direction.UP || currentDirection == Direction.DOWN)
                         {
@@ -151,7 +161,9 @@ public class MatchHelper
             {
                 if ((slot1.item != null) && (slot2.item != null) && (slot3.item != null))
                 {
-                    if ((slot1.item.color == slot.item.color) && (slot2.item.color == slot.item.color) && (slot3.item.color == slot.item.color))
+                    if (isSameColorForMatchBetween(slot1.item, slot.item) &&
+                        isSameColorForMatchBetween(slot2.item, slot.item) &&
+                        isSameColorForMatchBetween(slot3.item, slot.item))
                     {
                         canMatch = true;
                         isSquare = true;
@@ -164,6 +176,13 @@ public class MatchHelper
                 }
             }
         }
+    }
+
+    public bool isSameColorForMatchBetween(Item item1, Item item2)
+    {
+        if (item1.isDropItem() || item2.isDropItem()) return false;
+        if (!item1.isBoosterHasColor() || !item2.isBoosterHasColor()) return false;
+        return item1.color == item2.color;
     }
 
     public void reset()

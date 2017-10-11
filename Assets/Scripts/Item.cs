@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class Item : MonoBehaviour
 
     public bool isSwapping;
     public bool isFalling;
+    public bool isBooster;
 
     Slot neighbourSlot;
     Item neighbourItem;
@@ -20,6 +22,7 @@ public class Item : MonoBehaviour
 
     void Awake()
     {
+        isBooster = false;
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -229,12 +232,33 @@ public class Item : MonoBehaviour
     public void DestroyItem(ItemType targetItemType)
     {
         if (targetItemType != ItemType.NONE && targetItemType != ItemType.DROP)
-            StartCoroutine(ChangeToBoosterAnimation(targetItemType));
+        {
+            if (type == targetItemType)
+                ActivateBooster();
+            else
+                StartCoroutine(ChangeToBoosterAnimation(targetItemType));
+        }
         else
         {
             slot.item = null;
             Destroy(gameObject);
         }
+    }
+
+    void ActivateBooster()
+    {
+        if (type == ItemType.VERTICAL)
+        {
+            StartCoroutine(DestroyVertical());
+        }
+    }
+
+    IEnumerator DestroyVertical()
+    {
+        fieldController.DestroyVertical(slot.col);
+
+        Destroy(gameObject);
+        yield return null;
     }
 
     IEnumerator DestroyItemAnimation(Slot combineTarget = null, bool isCombine = false)
@@ -260,6 +284,7 @@ public class Item : MonoBehaviour
     IEnumerator ChangeToBoosterAnimation(ItemType targetItemType)
     {
         isFalling = true;
+        isBooster = true;
 
         float startTime = Time.time;
         float duration = .1f;
@@ -282,7 +307,7 @@ public class Item : MonoBehaviour
         while (t < 1)
         {
             t = (Time.time - startTime) / duration;
-            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
+            transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, t);
             yield return null;
         }
 
@@ -292,6 +317,23 @@ public class Item : MonoBehaviour
         yield return null;
 
         slot.FallNext();
+    }
+
+    public bool isDropItem()
+    {
+        return type == ItemType.DROP;
+    }
+
+    public bool isBoosterHasColor()
+    {
+        if (type == ItemType.VERTICAL && GameController.boosterUsingColor) return true;
+        if (type == ItemType.HORIZONTAL && GameController.boosterUsingColor) return true;
+        return false;
+    }
+
+    public bool isNone()
+    {
+        return type == ItemType.NONE;
     }
 
     // Update is called once per frame

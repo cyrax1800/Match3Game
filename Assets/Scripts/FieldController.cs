@@ -38,9 +38,9 @@ public class FieldController : MonoBehaviour
     {
         metaGesture = transform.GetComponent<MetaGesture>();
 
-        // TextAsset targetFile = Resources.Load<TextAsset>("levelingTestCase");
-        // TestCase testCase = JsonUtility.FromJson<TestCase>(targetFile.text);
-        // test = testCase.testCase[2];
+        TextAsset targetFile = Resources.Load<TextAsset>("levelingTestCase");
+        TestCase testCase = JsonUtility.FromJson<TestCase>(targetFile.text);
+        test = testCase.testCase[1];
     }
 
     // Use this for initialization
@@ -174,6 +174,87 @@ public class FieldController : MonoBehaviour
         return true;
     }
 
+    public void DestroyVertical(int col)
+    {
+        for (int i = maxRow - 1; i > -1; i--)
+        {
+            Slot slot = GetSlot(i, col);
+            if (slot != null && slot.item != null)
+            {
+                slot.item.DestroyItem(slot.item.type);
+            }
+        }
+    }
+
+    public void DestroyHorizontal(int row)
+    {
+        for (int i = 0 - 1; i < maxCol; i++)
+        {
+            Slot slot = GetSlot(row, i);
+            if (slot != null && slot.item != null)
+            {
+                slot.item.DestroyItem(slot.item.type);
+            }
+        }
+    }
+
+    public void DestroySquareShape(int row, int col, int range)
+    {
+        int fromRow = Math.Max(0, row - range);
+        int fromCol = Math.Max(0, col - range);
+        int toRow = Math.Min(maxRow, row + range);
+        int toCol = Math.Min(maxCol, col + range);
+
+        for (int i = toRow; i >= fromRow; i--)
+        {
+            for (int j = fromCol; j <= toCol; j++)
+            {
+                if (i == row && j == col) continue;
+                Slot slot = GetSlot(row, i);
+                if (slot != null && slot.item != null)
+                {
+                    slot.item.DestroyItem(slot.item.type);
+                }
+            }
+        }
+    }
+
+    public void DestroyRhombusShape(int row, int col, int radius)
+    {
+        int fromRow = Math.Max(0, row - radius);
+        int fromCol = Math.Max(0, col - radius);
+        int toRow = Math.Min(maxRow, row + radius);
+        int toCol = Math.Min(maxCol, col + radius);
+
+        Debug.Log(fromRow + " " + fromCol + " " + toRow + " " + toCol);
+
+        for (int i = fromRow; i <= radius; i++)
+        {
+            Debug.Log("from " + (fromCol + radius - i));
+            for (int j = fromCol + radius - i; j <= i * 2 + 1; j++)
+            {
+                Debug.Log("i: " + i + " j: " + j);
+                // Slot slot = GetSlot(i, j);
+                // Destroy(slot.item.gameObject);
+            }
+        }
+
+        // n = 3;
+        // for i in range(0, n):
+        //     for j in range(0, n - i):
+        //         print(" ", end = '')
+        //     for j in range(0, i * 2 + 1):
+        //         print("*", end = '')
+        //     print()
+        // for i in range(n, -1, -1):
+        //     for j in range(0, n - i):
+        //         print(" ", end = '')
+        //     for j in range(0, i * 2 + 1):
+        //         print("*", end = '')
+        //     print()
+
+    }
+
     void checkPosibleMove()
     {
 
@@ -219,9 +300,13 @@ public class FieldController : MonoBehaviour
     {
         if (GameController.boosterUsingColor)
         {
-            if ((itemType == ItemType.VERTICAL) || (itemType == ItemType.HORIZONTAL))
+            if (itemType == ItemType.VERTICAL)
             {
-
+                return gameController.VerticalSpriteDict[color];
+            }
+            else if (itemType == ItemType.HORIZONTAL)
+            {
+                return gameController.HorizontalSpriteDict[color];
             }
         }
 
@@ -231,7 +316,10 @@ public class FieldController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            DestroyRhombusShape(1, 1, 1);
+        }
     }
 
     /// <summary>
