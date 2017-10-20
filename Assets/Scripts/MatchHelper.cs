@@ -58,7 +58,7 @@ public class MatchHelper
             itemType = ItemType.HORIZONTAL;
         else if (listedVerticalItems.Count == 0 && listedHorizontalItems.Count == 3)
             itemType = ItemType.VERTICAL;
-        else if ((listedVerticalItems.Count == 4 && listedHorizontalItems.Count == 0) || (listedVerticalItems.Count == 0 && listedHorizontalItems.Count == 4))
+        else if ((listedVerticalItems.Count == 4 && listedHorizontalItems.Count < 3) || (listedVerticalItems.Count < 3 && listedHorizontalItems.Count == 4))
             itemType = ItemType.COLOR_BOMB;
         else if (totalMatch == 4 && (listedVerticalItems.Count == 2 && listedHorizontalItems.Count == 2))
             itemType = ItemType.BOMB;
@@ -76,12 +76,9 @@ public class MatchHelper
 
     public void Calculate()
     {
+        if (!slot.item) return;
         if (slot.item.isDropItem()) return;
-        if (!slot.item.isBoosterHasColor())
-        {
-            canMatch = true;
-            return;
-        }
+        if (!slot.item.isNone() && !slot.item.isBoosterHasColor()) return;
 
         //Check Vertical and Horizontal Swap
         CheckVerHorColor(Direction.UP);
@@ -181,7 +178,7 @@ public class MatchHelper
     public bool isSameColorForMatchBetween(Item item1, Item item2)
     {
         if (item1.isDropItem() || item2.isDropItem()) return false;
-        if (!item1.isBoosterHasColor() || !item2.isBoosterHasColor()) return false;
+        if (!(item1.isNone() && !item1.isBoosterHasColor()) || (!item2.isNone() && !item2.isBoosterHasColor())) return false;
         return item1.color == item2.color;
     }
 

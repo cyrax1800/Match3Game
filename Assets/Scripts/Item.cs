@@ -14,15 +14,18 @@ public class Item : MonoBehaviour
     public bool isSwapping;
     public bool isFalling;
     public bool isBooster;
+    public bool justCreatedBooster;
 
     Slot neighbourSlot;
     Item neighbourItem;
 
     Item nextTarget;
+    ItemColor targetColor = ItemColor.RANDOM;
 
     void Awake()
     {
         isBooster = false;
+        justCreatedBooster = false;
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -137,13 +140,25 @@ public class Item : MonoBehaviour
             yield return null;
         }
 
-        if (matchHelperThis.canMatch || matchHelperNeighbour.canMatch)
+        if (matchHelperThis.canMatch || matchHelperNeighbour.canMatch || isBooster || neighbourItem.isBooster)
         {
             if (neighbourItem != null)
                 neighbourItem.slot = slot;
             slot = neighbourSlot;
             StartCoroutine(matchHelperThis.DoMatch());
             StartCoroutine(matchHelperNeighbour.DoMatch());
+
+            if (!matchHelperThis.canMatch && isBooster && !justCreatedBooster)
+            {
+                if (type == ItemType.COLOR_BOMB) targetColor = neighbourItem.color;
+                DestroyItem(type);
+            }
+
+            if (!matchHelperNeighbour.canMatch && neighbourItem.isBooster && !neighbourItem.justCreatedBooster)
+            {
+                if (neighbourItem.type == ItemType.COLOR_BOMB) neighbourItem.targetColor = color;
+                neighbourItem.DestroyItem(neighbourItem.type);
+            }
 
             fieldController.FindMatches();
         }
@@ -176,8 +191,9 @@ public class Item : MonoBehaviour
 
     public void StartFalling()
     {
-        if (!isFalling)
-            StartCoroutine(FallingCoroutine());
+        // if (!isFalling)
+        StopCoroutine("FallingCoroutine");
+        StartCoroutine("FallingCoroutine");
     }
 
     IEnumerator FallingCoroutine()
@@ -198,7 +214,7 @@ public class Item : MonoBehaviour
             yield return null;
         }
 
-        if (!slot.CanFallNext())
+        if (!slot.CanFallNext() && (transform.position == slot.transform.position))
         {
             MatchHelper matchHelper = slot.TryMatch();
 
@@ -223,7 +239,7 @@ public class Item : MonoBehaviour
     public void DestroyItem(Slot combineTarget = null, bool isCombine = false)
     {
         slot.item = null;
-        if (isCombine)
+        if (isCombine && combineTarget)
             StartCoroutine(DestroyItemAnimation(combineTarget, isCombine));
         else
             Destroy(gameObject);
@@ -245,19 +261,75 @@ public class Item : MonoBehaviour
         }
     }
 
-    void ActivateBooster()
+    public void ActivateBooster()
     {
+        slot.item = null;
         if (type == ItemType.VERTICAL)
-        {
             StartCoroutine(DestroyVertical());
+        if (type == ItemType.HORIZONTAL)
+            StartCoroutine(DestroyHorizontal());
+        if (type == ItemType.BOMB)
+            StartCoroutine(DestroySquare());
+        if (type == ItemType.DYNAMITE)
+            StartCoroutine(DestroyRhombus(2));
+        if (type == ItemType.BIOHAZARD)
+            StartCoroutine(DestroyRhombus(3));
+        if (type == ItemType.COLOR_BOMB)
+            StartCoroutine(DestroyColor(targetColor));
+        if (type == ItemType.AIRPLANE)
+        {
+            StartCoroutine(DestroyAirplane());
         }
     }
 
     IEnumerator DestroyVertical()
     {
-        fieldController.DestroyVertical(slot.col);
+        fieldController.DestroyVertical(slot.row, slot.col);
 
         Destroy(gameObject);
+        yield return null;
+    }
+
+    IEnumerator DestroyHorizontal()
+    {
+        fieldController.DestroyHorizontal(slot.row, slot.col);
+
+        Destroy(gameObject);
+        yield return null;
+    }
+
+    IEnumerator DestroySquare()
+    {
+        fieldController.DestroySquareShape(slot.row, slot.col, 1);
+
+        Destroy(gameObject);
+        yield return null;
+    }
+
+    IEnumerator DestroyRhombus(int level)
+    {
+        fieldController.DestroyRhombusShape(slot.row, slot.col, level);
+
+        Destroy(gameObject);
+        yield return null;
+    }
+
+    IEnumerator DestroyColor(ItemColor targetColor = ItemColor.RANDOM)
+    {
+        fieldController.DestroyColor(targetColor);
+
+        Destroy(gameObject);
+        targetColor = ItemColor.RANDOM;
+
+        yield return null;
+    }
+
+    IEnumerator DestroyAirplane()
+    {
+        fieldController.DestoryRandomAirplaneTarget();
+
+        yield return StartCoroutine(DestroyRhombus(1));
+
         yield return null;
     }
 
@@ -285,6 +357,7 @@ public class Item : MonoBehaviour
     {
         isFalling = true;
         isBooster = true;
+        justCreatedBooster = true;
 
         float startTime = Time.time;
         float duration = .1f;
@@ -313,6 +386,8 @@ public class Item : MonoBehaviour
 
         isFalling = false;
         isSwapping = false;
+        justCreatedBooster = false;
+        fieldController.requireCallFallCoroutine = true;
 
         yield return null;
 
@@ -334,6 +409,12 @@ public class Item : MonoBehaviour
     public bool isNone()
     {
         return type == ItemType.NONE;
+    }
+
+    public void StopFallingDown()
+    {
+        isFalling = false;
+        StopCoroutine("FallingCoroutine");
     }
 
     // Update is called once per frame

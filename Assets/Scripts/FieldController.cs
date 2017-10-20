@@ -40,7 +40,7 @@ public class FieldController : MonoBehaviour
 
         TextAsset targetFile = Resources.Load<TextAsset>("levelingTestCase");
         TestCase testCase = JsonUtility.FromJson<TestCase>(targetFile.text);
-        test = testCase.testCase[1];
+        test = testCase.testCase[5];
     }
 
     // Use this for initialization
@@ -115,8 +115,8 @@ public class FieldController : MonoBehaviour
 
     public void FindMatches()
     {
-        StopCoroutine(FallingDown());
-        StartCoroutine(FallingDown());
+        StopCoroutine("FallingDown");
+        StartCoroutine("FallingDown");
     }
 
     IEnumerator FallingDown()
@@ -174,24 +174,26 @@ public class FieldController : MonoBehaviour
         return true;
     }
 
-    public void DestroyVertical(int col)
+    public void DestroyVertical(int row, int col)
     {
         for (int i = maxRow - 1; i > -1; i--)
         {
+            if (i == row) continue;
             Slot slot = GetSlot(i, col);
-            if (slot != null && slot.item != null)
+            if (slot != null && slot.item != null && !(slot.item.isBooster && slot.item.isFalling))
             {
                 slot.item.DestroyItem(slot.item.type);
             }
         }
     }
 
-    public void DestroyHorizontal(int row)
+    public void DestroyHorizontal(int row, int col)
     {
         for (int i = 0 - 1; i < maxCol; i++)
         {
+            if (i == col) continue;
             Slot slot = GetSlot(row, i);
-            if (slot != null && slot.item != null)
+            if (slot != null && slot.item != null && !(slot.item.isBooster && slot.item.isFalling))
             {
                 slot.item.DestroyItem(slot.item.type);
             }
@@ -210,8 +212,8 @@ public class FieldController : MonoBehaviour
             for (int j = fromCol; j <= toCol; j++)
             {
                 if (i == row && j == col) continue;
-                Slot slot = GetSlot(row, i);
-                if (slot != null && slot.item != null)
+                Slot slot = GetSlot(i, j);
+                if (slot != null && slot.item != null && !(slot.item.isBooster && slot.item.isFalling))
                 {
                     slot.item.DestroyItem(slot.item.type);
                 }
@@ -221,37 +223,78 @@ public class FieldController : MonoBehaviour
 
     public void DestroyRhombusShape(int row, int col, int radius)
     {
-        int fromRow = Math.Max(0, row - radius);
-        int fromCol = Math.Max(0, col - radius);
-        int toRow = Math.Min(maxRow, row + radius);
-        int toCol = Math.Min(maxCol, col + radius);
+        int fromRow = row - radius;
+        int fromCol = col - radius;
+        int toRow = row + radius;
+        int toCol = col + radius;
 
-        Debug.Log(fromRow + " " + fromCol + " " + toRow + " " + toCol);
+        // Debug.Log(fromRow + " " + fromCol + " " + toRow + " " + toCol);
 
-        for (int i = fromRow; i <= radius; i++)
+        for (int i = radius - 1; i > -1; i--)
         {
-            Debug.Log("from " + (fromCol + radius - i));
-            for (int j = fromCol + radius - i; j <= i * 2 + 1; j++)
+            int startIndx = radius - i;
+            for (int j = 0; j < i * 2 + 1; j++)
             {
-                Debug.Log("i: " + i + " j: " + j);
-                // Slot slot = GetSlot(i, j);
-                // Destroy(slot.item.gameObject);
+                int tmpCol = fromCol + startIndx + j;
+                int tmpRow = toRow - i;
+                if (tmpRow == row && tmpCol == col) continue;
+                Slot slot = GetSlot(tmpRow, tmpCol);
+                if (slot && slot.item && !(slot.item.isBooster && slot.item.isFalling)) slot.item.DestroyItem(slot.item.type);
             }
         }
 
-        // n = 3;
-        // for i in range(0, n):
-        //     for j in range(0, n - i):
-        //         print(" ", end = '')
-        //     for j in range(0, i * 2 + 1):
-        //         print("*", end = '')
-        //     print()
-        // for i in range(n, -1, -1):
-        //     for j in range(0, n - i):
-        //         print(" ", end = '')
-        //     for j in range(0, i * 2 + 1):
-        //         print("*", end = '')
-        //     print()
+        for (int i = 0; i <= radius; i++)
+        {
+            int startIndx = radius - i;
+            for (int j = 0; j < i * 2 + 1; j++)
+            {
+                int tmpCol = fromCol + startIndx + j;
+                int tmpRow = fromRow + i;
+                if (tmpRow == row && tmpCol == col) continue;
+                Slot slot = GetSlot(tmpRow, tmpCol);
+                if (slot && slot.item && !(slot.item.isBooster && slot.item.isFalling)) Destroy(slot.item.gameObject);
+            }
+        }
+    }
+
+    public void DestroyColor(ItemColor color)
+    {
+        StopCoroutine("FallingDown");
+
+        if (color == ItemColor.RANDOM)
+            color = (ItemColor)UnityEngine.Random.Range(0, colorVariant);
+
+        for (int i = maxRow - 1; i > -1; i--)
+        {
+            for (int j = 0; j < maxCol; j++)
+            {
+                Slot slot = GetSlot(i, j);
+                if (slot && slot.item && !(slot.item.isBooster && slot.item.isFalling))
+                {
+                    slot.item.StopFallingDown();
+                    if (slot.item.color == color)
+                    {
+                        slot.item.DestroyItem(slot.item.type);
+                    }
+                }
+            }
+        }
+    }
+
+    public void DestoryRandomAirplaneTarget()
+    {
+        Slot slot = slotArr[UnityEngine.Random.Range(0, slotArr.Length - 1)];
+
+        while (slot == null || slot.item == null || slot.item.isFalling || slot.item.isBooster || (slot.item.type == ItemType.DROP))
+        {
+            slot = slotArr[UnityEngine.Random.Range(0, slotArr.Length - 1)];
+        }
+
+        slot.item.DestroyItem(slot.item.type);
+    }
+
+    public void DestroySingleItem(int row, int col)
+    {
 
     }
 
@@ -316,9 +359,9 @@ public class FieldController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A))
         {
-            DestroyRhombusShape(1, 1, 1);
+            DestroyRhombusShape(3, 3, 2);
         }
     }
 
@@ -364,6 +407,12 @@ public class FieldController : MonoBehaviour
             // Double Click
             // TODO: jika dia booster maka harus ada waktu untuk cancel double click
             // Debug.Log("Double Click");
+            if (currentSlotSelected.item.isBooster && !GameController.boosterUsingColor)
+            {
+                currentSlotSelected.item.ActivateBooster();
+                currentSlotSelected = null;
+                FindMatches();
+            }
         }
         else if (currentSlotSelected != tmpSlotSelected)
         {
